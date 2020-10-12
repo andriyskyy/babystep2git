@@ -1,0 +1,35 @@
+version: '3' 
+# Список наших сервисов (контейнеров) 
+services: 
+  apache2:  
+# используем последний стабильный образ nginx 
+    image: 'andriyskyy/my-apache2'
+# маршрутизируем порты 
+    ports: 
+         - "80:80" 
+         - "443:443" 
+# монтируем директории, слева директории на основной машине, справа - куда они монтируются в контейнере 
+    volumes: 
+      - ./hosts:/etc/nginx/conf.d 
+      - ./www:/var/www 
+      - ./logs:/var/log/nginx 
+# nginx должен общаться с php контейнером 
+    links: 
+    - php 
+  php: 
+# у нас свой образ для PHP, указываем путь к нему и говорим что его надо собрать 
+    image: 'andriyskyy/andriyskyy_php'
+# этот образ будет общаться с mysql 
+    links: 
+     - mysql 
+# монтируем директорию с проектами 
+    volumes: 
+        - ./www:/var/www 
+  mysql: 
+    image: andriyskyy/mysql01
+    ports: 
+            - "3306:3306" 
+    volumes: 
+             - ./mysql:/var/lib/mysql 
+# задаем пароль для root пользователя environment: 
+#MYSQL_ROOT_PASSWORD: secret      
