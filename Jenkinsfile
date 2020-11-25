@@ -1,14 +1,12 @@
-pipeline{
-  agent any
-//node {
-  //git 'https://github.com/andriyskyy/babystep2git.git'
+node {
+  git 'https://github.com/andriyskyy/babystep2git.git'
   if(action == 'Deploy') {
     
     stage('credentials'){
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: '88dba664-6a22-408a-ace8-526e88c3e522', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
     // some block
 }
-    //}
+    }
     
     stage('init') {
         sh """
@@ -47,5 +45,4 @@ pipeline{
       sh label: 'Destroy environment', script: "terraform apply -lock=false -input=false tfdestroyplan"
     }
   }
-}
 }
