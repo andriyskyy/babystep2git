@@ -1,3 +1,5 @@
+pipeline{
+  agent any
 node {
   git 'https://github.com/andriyskyy/babystep2git.git'
   if(action == 'Deploy') {
@@ -45,4 +47,5 @@ node {
       sh label: 'Destroy environment', script: "terraform apply -lock=false -input=false tfdestroyplan"
     }
   }
+}
 }
