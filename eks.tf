@@ -30,6 +30,7 @@ resource "aws_iam_role_policy_attachment" "AmazonEKSServicePolicy" {
 resource "aws_eks_cluster" "aws_eks" {
   name     = "eks_cluster_test"
   role_arn = aws_iam_role.eks_cluster.arn
+  key_name = "AWS_key"
 
   vpc_config {
     subnet_ids = ["subnet-6f453823", "subnet-bd479bd6"]
@@ -79,6 +80,7 @@ resource "aws_eks_node_group" "node" {
   node_group_name = "node_test"
   node_role_arn   = aws_iam_role.eks_nodes.arn
   subnet_ids      = ["subnet-6f453823", "subnet-bd479bd6"]
+  key_name        = "AWS_key"
 
   scaling_config {
     desired_size = 1
