@@ -85,7 +85,9 @@ resource "aws_eks_node_group" "node" {
     max_size      = 1
     min_size      = 1
     instance_type = "t2.micro"
-    ec2_ssh_key   = "AWS_key"
+      remote_access {
+        ec2_ssh_key   = "AWS_key"
+      }    
   }
 
   # Ensure that IAM Role permissions are created before and deleted after EKS Node Group handling.
