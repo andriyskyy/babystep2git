@@ -85,6 +85,15 @@ resource "aws_eks_node_group" "node" {
     max_size      = 1
     min_size      = 1    
   }
+  node_groups = {
+    first = {
+      desired_capacity = 2
+      max_capacity     = 5
+      min_capacity     = 1
+
+      instance_type = "t2.micro"
+    }
+  }
   remote_access {
     ec2_ssh_key   = "AWS_key"
   }
