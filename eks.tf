@@ -1,7 +1,3 @@
-resource "aws_key_pair" "cluster_key" {
-  key_name   = "ssh-key"
-  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCPyC716pP9qAP82YCAs5xOp0koAg/alGei4bBYzYjvsMTe36fT6hUPvlzs6rc3qDeIWkFLrME5HiPEFrNt6cHv6LhdTT7cHzJg3kZvYBTzUOx0hDEztk4MYThG91enGOIczC+sRmozsGxys0sQCT3nANL5G27vCrRoknTlhavRIlHctrarjnrwf7aNO4AnKkW7XCSApnHuQaS3HxgxCSpysP3sbHVMXPUYCoqgEZx4naDMVek+nVb9U5IAABQtz9/nZo8mwMQcAJai/16gAVluchdArLgdL0im16P4qh94WIcWK6iiQnni9Rt9qvOYYGIrB/ghj2NWADqmIMDgHqnf"
-                                      }
 resource "aws_iam_role" "eks_cluster" {
   name = "eks-cluster"
 
@@ -85,9 +81,11 @@ resource "aws_eks_node_group" "node" {
   subnet_ids      = ["subnet-6f453823", "subnet-bd479bd6"]
 
   scaling_config {
-    desired_size = 1
-    max_size     = 1
-    min_size     = 1
+    desired_size  = 2
+    max_size      = 1
+    min_size      = 1
+    instance_type = "t2.micro"
+    key_name      = AWS_key
   }
 
   # Ensure that IAM Role permissions are created before and deleted after EKS Node Group handling.
