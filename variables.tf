@@ -34,3 +34,7 @@ variable "aws_iam_role" {
   default     = "eks-cluster"
   description = "IAM role name"
 }
+variable "iam_nodes_name" {
+  default     = "eks-nodes-nextcloud-demo"
+  description = "IAM role name for nodes"
+}
