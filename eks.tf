@@ -99,7 +99,7 @@ resource "aws_eks_node_group" "node" {
 }
 resource "kubernetes_deployment" "example" {
   metadata {
-    name    = "Nextcloud_test"
+    name    = "terraform-test"
     labels  = {
       test  = "MyExampleApp"
     }
