@@ -36,7 +36,7 @@ resource "aws_eks_cluster" "aws_eks" {
   }
 
   tags = {
-    Name = "EKS_test"
+    Name = "var.tag_name"
   }
 }
 
@@ -86,7 +86,7 @@ resource "aws_eks_node_group" "node" {
     min_size      = 1    
   }
   remote_access {
-    ec2_ssh_key   = "AWS_key"
+    ec2_ssh_key   = "var.ssh_keyname"
   }
 
   # Ensure that IAM Role permissions are created before and deleted after EKS Node Group handling.
