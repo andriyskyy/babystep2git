@@ -1,3 +1,7 @@
+variable "region" {
+  default     = "us-east-2"
+  description = "Default AWS region"
+}
 variable "datadog_api_key" {
   default     = ""
   description = "Datadog API KEY"
@@ -5,6 +9,10 @@ variable "datadog_api_key" {
 variable "datadog_app_key" {
   default     = ""
   description = "Datadog APP KEY"
+}
+variable "api_url" {
+  default     = "https://api.datadoghq.eu/"
+  description = "API default URL address"
 }
 variable "cluster_name" {
   default     = "NextCloud_Demo"
