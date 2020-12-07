@@ -30,3 +30,7 @@ variable "ssh_keyname" {
   default     = "AWS_key"
   description = "SSH keypair name for remote access"
 }
+variable "aws_iam_role" {
+  default     = "eks-cluster"
+  description = "IAM role name"
+}
