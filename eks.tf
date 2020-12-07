@@ -1,5 +1,5 @@
 resource "aws_iam_role" "eks_cluster" {
-  name = "var.aws_iam_role"
+  name = var.aws_iam_role
 
   assume_role_policy = <<POLICY
 {
@@ -28,7 +28,7 @@ resource "aws_iam_role_policy_attachment" "AmazonEKSServicePolicy" {
 }
 
 resource "aws_eks_cluster" "aws_eks" {
-  name       = "var.cluster_name"
+  name       = var.cluster_name
   role_arn   = aws_iam_role.eks_cluster.arn
 
   vpc_config {
@@ -36,12 +36,12 @@ resource "aws_eks_cluster" "aws_eks" {
   }
 
   tags = {
-    Name = "var.tag_name"
+    Name = var.tag_name
   }
 }
 
 resource "aws_iam_role" "eks_nodes" {
-  name = "var.iam_nodes_name"
+  name = var.iam_nodes_name
 
   assume_role_policy = <<POLICY
 {
@@ -76,7 +76,7 @@ resource "aws_iam_role_policy_attachment" "AmazonEC2ContainerRegistryReadOnly" {
 
 resource "aws_eks_node_group" "node" {
   cluster_name    = aws_eks_cluster.aws_eks.name
-  node_group_name = "var.node_group_name"
+  node_group_name = var.node_group_name
   node_role_arn   = aws_iam_role.eks_nodes.arn
   subnet_ids      = ["subnet-6f453823", "subnet-bd479bd6"]
 
@@ -86,7 +86,7 @@ resource "aws_eks_node_group" "node" {
     min_size      = 1    
   }
   remote_access {
-    ec2_ssh_key   = "var.ssh_keyname"
+    ec2_ssh_key   = var.ssh_keyname
   }
 
   # Ensure that IAM Role permissions are created before and deleted after EKS Node Group handling.
