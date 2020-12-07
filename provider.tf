@@ -1,9 +1,9 @@
 provider "aws" {
-   profile    = "default"
-   region     = "us-east-2"
+   profile    = default
+   region     = var.region
  }
 provider "datadog" {
   api_key = var.datadog_api_key
   app_key = var.datadog_app_key
-  api_url = "https://api.datadoghq.eu/"
+  api_url = var.api_url
 }
