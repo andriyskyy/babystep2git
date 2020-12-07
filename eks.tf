@@ -1,142 +1,174 @@
-resource "aws_iam_role" "eks_cluster" {
-  name = var.aws_iam_role
+terraform {
+  required_version = ">= 0.12.0"
+}
 
-  assume_role_policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
+provider "aws" {
+  version = ">= 2.28.1"
+  region  = var.region
+}
+
+data "aws_eks_cluster" "cluster" {
+  name = module.eks.cluster_id
+}
+
+data "aws_eks_cluster_auth" "cluster" {
+  name = module.eks.cluster_id
+}
+
+data "aws_availability_zones" "available" {
+}
+
+resource "aws_security_group" "worker_group_mgmt_one" {
+  name_prefix = "worker_group_mgmt_one"
+  vpc_id      = module.vpc.vpc_id
+
+  ingress {
+    from_port = 22
+    to_port   = 22
+    protocol  = "tcp"
+
+    cidr_blocks = [
+      "10.0.0.0/8",
+    ]
+  }
+}
+
+resource "aws_security_group" "all_worker_mgmt" {
+  name_prefix = "all_worker_management"
+  vpc_id      = module.vpc.vpc_id
+
+  ingress {
+    from_port = 22
+    to_port   = 22
+    protocol  = "tcp"
+
+    cidr_blocks = [
+      "10.0.0.0/8",
+      "172.16.0.0/12",
+      "192.168.0.0/16",
+    ]
+  }
+}
+
+module "vpc" {
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "2.6.0"
+
+  name                 = "test-vpc"
+  cidr                 = "10.0.0.0/16"
+  azs                  = data.aws_availability_zones.available.names
+  private_subnets      = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  public_subnets       = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
+  enable_nat_gateway   = true
+  single_nat_gateway   = true
+  enable_dns_hostnames = true
+
+  public_subnet_tags = {
+    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+    "kubernetes.io/role/elb"                      = "1"
+  }
+
+  private_subnet_tags = {
+    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+    "kubernetes.io/role/internal-elb"             = "1"
+  }
+}
+
+module "eks" {
+  source       = "terraform-aws-modules/eks/aws"
+  cluster_name    = var.cluster_name
+  cluster_version = "1.17"
+  subnets         = module.vpc.private_subnets
+  version = "12.2.0"
+  cluster_create_timeout = "1h"
+  cluster_endpoint_private_access = true 
+
+  vpc_id = module.vpc.vpc_id
+
+  worker_groups = [
     {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "eks.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
+      name                          = "worker-group-1"
+      instance_type                 = "t2.small"
+      additional_userdata           = "echo foo bar"
+      asg_desired_capacity          = 1
+      additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id]
+    },
   ]
-}
-POLICY
-}
 
-resource "aws_iam_role_policy_attachment" "AmazonEKSClusterPolicy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
-  role       = aws_iam_role.eks_cluster.name
+  worker_additional_security_group_ids = [aws_security_group.all_worker_mgmt.id]
+  map_roles                            = var.map_roles
+  map_users                            = var.map_users
+  map_accounts                         = var.map_accounts
 }
 
-resource "aws_iam_role_policy_attachment" "AmazonEKSServicePolicy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSServicePolicy"
-  role       = aws_iam_role.eks_cluster.name
+
+
+provider "kubernetes" {
+  host                   = data.aws_eks_cluster.cluster.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
+  token                  = data.aws_eks_cluster_auth.cluster.token
+  load_config_file       = false
+  version                = "~> 1.11"
 }
 
-resource "aws_eks_cluster" "aws_eks" {
-  name       = var.cluster_name
-  role_arn   = aws_iam_role.eks_cluster.arn
-
-  vpc_config {
-    subnet_ids = ["subnet-6f453823", "subnet-bd479bd6"]
-  }
-
-  tags = {
-    Name = var.tag_name
-  }
-}
-
-resource "aws_iam_role" "eks_nodes" {
-  name = var.iam_nodes_name
-
-  assume_role_policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "ec2.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-POLICY
-}
-
-resource "aws_iam_role_policy_attachment" "AmazonEKSWorkerNodePolicy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
-  role       = aws_iam_role.eks_nodes.name
-}
-
-resource "aws_iam_role_policy_attachment" "AmazonEKS_CNI_Policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-  role       = aws_iam_role.eks_nodes.name
-}
-
-resource "aws_iam_role_policy_attachment" "AmazonEC2ContainerRegistryReadOnly" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-  role       = aws_iam_role.eks_nodes.name
-}
-
-resource "aws_eks_node_group" "node" {
-  cluster_name    = aws_eks_cluster.aws_eks.name
-  node_group_name = var.node_group_name
-  node_role_arn   = aws_iam_role.eks_nodes.arn
-  subnet_ids      = ["subnet-6f453823", "subnet-bd479bd6"]
-
-  scaling_config {
-    desired_size  = 1
-    max_size      = 1
-    min_size      = 1    
-  }
-  remote_access {
-    ec2_ssh_key   = var.ssh_keyname
-  }
-
-  # Ensure that IAM Role permissions are created before and deleted after EKS Node Group handling.
-  # Otherwise, EKS will not be able to properly delete EC2 Instances and Elastic Network Interfaces.
-  depends_on = [
-    aws_iam_role_policy_attachment.AmazonEKSWorkerNodePolicy,
-    aws_iam_role_policy_attachment.AmazonEKS_CNI_Policy,
-    aws_iam_role_policy_attachment.AmazonEC2ContainerRegistryReadOnly,
-  ]
-}
 resource "kubernetes_deployment" "example" {
   metadata {
-    name    = "terraform-test"
-    labels  = {
-      test  = "MyExampleApp"
+    name = "terraform-example"
+    labels = {
+      test = "MyExampleApp"
     }
   }
-  
+
   spec {
     replicas = 2
-    
+
     selector {
       match_labels = {
         test = "MyExampleApp"
       }
-     }
+    }
+
     template {
       metadata {
         labels = {
           test = "MyExampleApp"
         }
-     }
+      }
+
       spec {
         container {
           image = "nginx:1.7.8"
           name  = "example"
-        resources {
-          limits {
-            cpu     = "0.5"
-            memory  = "512Mi"
-          }
-          requests {
-            cpu     = "250m"
-            memory  = "50Mi"
-         }
-        }
-       }
-      }
-     }
-    }
-}
-          
 
+          resources {
+            limits {
+              cpu    = "0.5"
+              memory = "512Mi"
+            }
+            requests {
+              cpu    = "250m"
+              memory = "50Mi"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+resource "kubernetes_service" "example" {
+  metadata {
+    name = "terraform-example"
+  }
+  spec {
+    selector = {
+      test = "MyExampleApp"
+    }
+    port {
+      port        = 80
+      target_port = 80
+    }
+
+    type = "LoadBalancer"
+  }
+}
