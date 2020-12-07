@@ -1,10 +1,3 @@
-output "eks_cluster_endpoint" {
-  value = aws_eks_cluster.aws_eks.endpoint
-}
-
-output "eks_cluster_certificat_authority" {
-  value = aws_eks_cluster.aws_eks.certificate_authority 
-}
 output "cluster_endpoint" {
   description = "Endpoint for EKS control plane."
   value       = module.eks.cluster_endpoint
