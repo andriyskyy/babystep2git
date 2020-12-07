@@ -41,7 +41,7 @@ resource "aws_eks_cluster" "aws_eks" {
 }
 
 resource "aws_iam_role" "eks_nodes" {
-  name = "eks-node-group-tuto"
+  name = "var.iam_nodes_name"
 
   assume_role_policy = <<POLICY
 {
