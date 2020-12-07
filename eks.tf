@@ -97,3 +97,46 @@ resource "aws_eks_node_group" "node" {
     aws_iam_role_policy_attachment.AmazonEC2ContainerRegistryReadOnly,
   ]
 }
+resource "kubernetes_deployment" "example" {
+  metadata {
+    name    = "Nextcloud_test"
+    labels  = {
+      test  = "MyExampleApp"
+    }
+  }
+  
+  spec {
+    replicas = 2
+    
+    selector {
+      match_labels = {
+        test = "MyExampleApp"
+      }
+     }
+    template {
+      metadata {
+        labels = {
+          test = "MyExampleApp"
+        }
+     }
+      spec {
+        container {
+          image = "nginx:1.7.8"
+          name  = "example"
+        resources {
+          limits {
+            cpu     = "0.5"
+            memory  = "512Mi"
+          }
+          requests {
+            cpu     = "250m"
+            memory  = "50mi"
+         }
+        }
+       }
+      }
+     }
+    }
+}
+          
+
