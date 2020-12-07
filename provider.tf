@@ -1,6 +1,6 @@
 provider "aws" {
-   profile    = default
-   region     = "var.region"
+   version    = ">= 2.28.1"
+   region     = var.region
  }
 provider "datadog" {
   api_key = var.datadog_api_key
