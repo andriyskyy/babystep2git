@@ -172,3 +172,6 @@ resource "kubernetes_service" "example" {
     type = "LoadBalancer"
   }
 }
+    remote_access {
+    ec2_ssh_key   = var.ssh_keyname
+  }
