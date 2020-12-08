@@ -11,7 +11,7 @@ variable "datadog_app_key" {
   description = "Datadog APP KEY"
 }
 variable "api_url" {
-  default     = "https://api.datadoghq.eu/"
+  default     = "https://api.datadoghq.com/"
   description = "API default URL address"
 }
 variable "cluster_name" {
@@ -44,7 +44,7 @@ variable "map_accounts" {
   type        = list(string)
 
   default = [
-    "777777777777",
+    "837602901840",
     "888888888888",
   ]
 }
