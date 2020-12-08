@@ -6,7 +6,7 @@ data "terraform_remote_state" "eks" {
   backend = "local"
 
   config = {
-    path = "../learn-terraform-provision-eks-cluster/terraform.tfstate"
+    path = "/var/jenkins_home/workspace/Demo_EKS/terraform.tfstate"
   }
 }
 
