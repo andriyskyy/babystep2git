@@ -141,6 +141,7 @@ resource "kubernetes_deployment" "example" {
           port {
             container_port = 80
             }
+          }
         container {
           image = "andriyskyy/nextclouddb:latest"
           name  = "db"
