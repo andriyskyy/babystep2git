@@ -44,7 +44,7 @@ variable "map_accounts" {
   type        = list(string)
 
   default = [
-    "837602901840",
+    "777777777777",
     "888888888888",
   ]
 }
