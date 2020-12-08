@@ -3,7 +3,7 @@ terraform {
 }
 
 provider "aws" {
-  version = "~> 3.0"
+  version = ">= 2.28.1"
   region  = var.region
 }
 
@@ -81,7 +81,7 @@ module "eks" {
   subnets         = module.vpc.private_subnets
   version = "12.2.0"
   cluster_create_timeout = "1h"
-  cluster_endpoint_private_access = true
+  cluster_endpoint_private_access = true 
 
   vpc_id = module.vpc.vpc_id
 
@@ -108,7 +108,7 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
   token                  = data.aws_eks_cluster_auth.cluster.token
   load_config_file       = false
-  version                = "~> 1.7"
+  version                = "~> 1.11"
 }
 
 resource "kubernetes_deployment" "example" {
@@ -137,7 +137,7 @@ resource "kubernetes_deployment" "example" {
 
       spec {
         container {
-          image = "nginx:1.7.8"
+          image = "andriyskyy/nc:latest"
           name  = "example"
 
           resources {
