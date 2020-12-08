@@ -81,10 +81,7 @@ module "eks" {
   subnets         = module.vpc.private_subnets
   version = "12.2.0"
   cluster_create_timeout = "1h"
-  cluster_endpoint_private_access = true 
-  remote_access {
-    ec2_ssh_key   = var.ssh_keyname
-  }
+  cluster_endpoint_private_access = true
 
   vpc_id = module.vpc.vpc_id
 
