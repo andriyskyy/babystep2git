@@ -110,3 +110,63 @@ provider "kubernetes" {
   load_config_file       = false
   version                = "~> 1.11"
 }
+resource "kubernetes_deployment" "example" {
+  metadata {
+    name = "terraform-example"
+    labels = {
+      test = "MyExampleApp"
+    }
+  }
+
+  spec {
+    replicas = 2
+
+    selector {
+      match_labels = {
+        test = "MyExampleApp"
+      }
+    }
+
+    template {
+      metadata {
+        labels = {
+          test = "MyExampleApp"
+        }
+      }
+
+      spec {
+        container {
+          image = "andriyskyy/nc:latest"
+          name  = "application"
+          port {
+            container_port = 80
+            }
+        container {
+          image = "andriyskyy/nextclouddb:latest"
+          name  = "db"
+          port {
+            container_port = 5432
+            }
+          } 
+        }
+      }
+    }
+  }
+}
+
+resource "kubernetes_service" "example" {
+  metadata {
+    name = "terraform-example"
+  }
+  spec {
+    selector = {
+      test = "MyExampleApp"
+    }
+    port {
+      port        = 80
+      target_port = 80
+    }
+
+    type = "LoadBalancer"
+  }
+}
