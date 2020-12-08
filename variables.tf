@@ -4,7 +4,7 @@ variable "region" {
 }
 
 variable "cluster_name" {
-  default = "getting-started-eks"
+  default = "Nextcloud"
 }
 
 variable "map_accounts" {
@@ -12,7 +12,7 @@ variable "map_accounts" {
   type        = list(string)
 
   default = [
-    "777777777777",
+    "837602901840",
     "888888888888",
   ]
 }
