@@ -94,6 +94,9 @@ module "eks" {
       additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id]
     },
   ]
+  remote_access {
+    ec2_ssh_key   = var.ssh_keyname
+  }
 
   worker_additional_security_group_ids = [aws_security_group.all_worker_mgmt.id]
   map_roles                            = var.map_roles
@@ -172,6 +175,3 @@ resource "kubernetes_service" "example" {
     type = "LoadBalancer"
   }
 }
-    remote_access {
-    ec2_ssh_key   = var.ssh_keyname
-  }
