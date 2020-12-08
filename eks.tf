@@ -82,6 +82,9 @@ module "eks" {
   version = "12.2.0"
   cluster_create_timeout = "1h"
   cluster_endpoint_private_access = true 
+  remote_access {
+    ec2_ssh_key   = var.ssh_keyname
+  }
 
   vpc_id = module.vpc.vpc_id
 
@@ -94,9 +97,6 @@ module "eks" {
       additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id]
     },
   ]
-  remote_access {
-    ec2_ssh_key   = var.ssh_keyname
-  }
 
   worker_additional_security_group_ids = [aws_security_group.all_worker_mgmt.id]
   map_roles                            = var.map_roles
