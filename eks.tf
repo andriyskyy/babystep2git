@@ -77,7 +77,7 @@ module "vpc" {
 module "eks" {
   source       = "terraform-aws-modules/eks/aws"
   cluster_name    = var.cluster_name
-  cluster_version = "1.19"
+  cluster_version = "1.18"
   subnets         = module.vpc.private_subnets
   version = "12.2.0"
   cluster_create_timeout = "1h"
