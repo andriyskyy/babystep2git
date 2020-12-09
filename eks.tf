@@ -88,9 +88,9 @@ module "eks" {
   worker_groups = [
     {
       name                          = "worker-group-1"
-      instance_type                 = "t2.medium"
+      instance_type                 = "t2.small"
       additional_userdata           = "echo foo bar"
-      asg_desired_capacity          = 2
+      asg_desired_capacity          = 1
       additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id]
     },
   ]
@@ -136,18 +136,8 @@ resource "kubernetes_deployment" "example" {
 
       spec {
         container {
-          image = "andriyskyy/nc:latest"
-          name  = "application"
-          port {
-            container_port = 80
-            }
-          }
-        container {
-          image = "andriyskyy/nextclouddb:latest"
-          name  = "db"
-          port {
-            container_port = 5432
-            }
+          image = "nginx:1.7.8"
+          name  = "webserver"
           } 
         }
       }
